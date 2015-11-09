@@ -22,7 +22,7 @@ function varargout = fourier(varargin)
 
 % Edit the above text to modify the response to help fourier
 
-% Last Modified by GUIDE v2.5 08-Nov-2015 23:50:18
+% Last Modified by GUIDE v2.5 09-Nov-2015 20:00:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -83,8 +83,19 @@ function varargout = fourier_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+function updateCoeficientText(Ao,An,Bn,handles)
+P = strcat('$$', 'A_0 = ', char(latex(Ao)),'$$');
+set(handles.latex_a_cero,'String',P);
+P = strcat('$$', 'A_n = ', char(latex(An)),'$$');
+set(handles.latex_a_ns,'String',P);
+P = strcat('$$', 'B_n = ', char(latex(Bn)),'$$');
+set(handles.latex_b_ns,'String',P);
 
-% --- Executes on button press in CALCULAR.
+function clear_graph(axes)
+hold(axes,'on')
+delete(allchild(axes));
+hold(axes,'off')
+
 function CALCULAR_Callback(hObject, eventdata, handles)
 % hObject    handle to CALCULAR (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -116,15 +127,7 @@ for i=1:length(f)
 end
 Bn = simplify(2*Bn/T);
 
-
-P = strcat('$$', 'A_0 = ', char(latex(Ao)),'$$');
-set(handles.latex_a_cero,'String',P);
-P = strcat('$$', 'A_n = ', char(latex(An)),'$$');
-set(handles.latex_a_ns,'String',P);
-P = strcat('$$', 'B_n = ', char(latex(Bn)),'$$');
-set(handles.latex_b_ns,'String',P);
-
-set(handles.latex_a_cero,'String','pepeepoeoe');
+updateCoeficientText(Ao,An,Bn,handles);
 
 syms n 
 a = str2num(get(handles.ARMONICOS, 'String'));
@@ -132,42 +135,27 @@ t = linspace(min(A)-T, max(A)+T,1000);
 ft = zeros(a, 1000); 
 for i=1:a
    ft(i,:) = (subs(Bn, 'n', i).*sin(i*wo*t))+(subs(An, 'n', i).*cos(i*wo*t));
-   axes(handles.axes4)
-   cla reset;
-   set(handles.axes4, 'visible', 'on')
+   %%Plot fourier sums
+   axes(handles.sumas_fourier)  
+   clear_graph(handles.sumas_fourier);
+   xlim([min(t) max(t)])
     plot(t, Ao+sum(ft),'Color', 'b', 'Linewidth', 1.3); 
-   title('\bfSE�LES SINUSOIDALES SUMADAS')  
-   xlim([min(t) max(t)])
-   xlabel('\bfARMONICO');
-   ylabel('\bftiempo');
-   zlabel('\bfAMPLITUD')
-   hold on
-%    box on
-%    grid on
-   axes(handles.axes5)
-   cla reset;
-   set(handles.axes5, 'visible', 'on')
-   plot(t, ft(i,:),'Color','b', 'Linewidth', 1.3)
-   title('\bfSE�LES SINUSOIDALES SIMPLES')
+
    
-   xlim([min(t) max(t)])
    hold on
-%    box on
-%    grid on
-   xlabel('\bfARMONICO');
-   ylabel('\bftiempo');
-   zlabel('\bfAMPLITUD');
+   %%%Espectro de amplitud
    Cn(i) = sqrt(subs(Bn, 'n', i)^2+subs(An, 'n', i)^2);
    axes(handles.axes3)
+   clear_graph(handles.axes3);
    set(handles.axes3, 'visible', 'on')
     stem(Cn,'fill','r', 'Linewidth', 2)
    hold on; grid on
-    title('\bfAMPLITUD ARMONICOS')
+    title('\bfEspectro de Amplitud')
    xlim([1 a])
    
    pause(0.001)
 end
-axes(handles.axes4)
+axes(handles.sumas_fourier)
    plot(t, Ao+sum(ft), 'r','Linewidth', 2);
 
   
@@ -175,12 +163,6 @@ axes(handles.axes4)
 
 
 function ECUACION_Callback(hObject, eventdata, handles)
-% hObject    handle to ECUACION (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of ECUACION as text
-%        str2double(get(hObject,'String')) returns contents of ECUACION as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -204,10 +186,8 @@ function GRAFICAR_Callback(hObject, eventdata, handles)
 global A f
 syms x t
 
-clc
-axes(handles.axes1)
-set(handles.axes1, 'visible', 'on')
-cla
+axes(handles.function_graph)
+clear_graph(handles.function_graph)
 A = str2num(get(handles.INTERVALOS, 'String'));
 f = eval(get(handles.ECUACION, 'String'));
 x = linspace(min(A), max(A), 1000);
@@ -224,10 +204,6 @@ plot(x+max(x)-min(x), fx, 'Linewidth', 2)
 plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
-grid on
-xlabel('\bfTIEMPO');
-ylabel('\bfAMPLITUD');
-title('\bfGRAFICA DE LA FUNCION');
 T = max(x)-min(x);
 
 
@@ -248,3 +224,26 @@ function ARMONICOS_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function function_graph_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to function_graph (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+axes(hObject)
+set(hObject, 'visible', 'on')
+grid on
+xlabel('\bfTIEMPO');
+ylabel('\bfAMPLITUD');
+title('\bfFuncion');
+
+
+% --- Executes during object creation, after setting all properties.
+function sumas_fourier_CreateFcn(hObject, eventdata, handles)
+   axes(hObject)
+   set(handles.sumas_fourier, 'visible', 'on')
+   grid on
+   title('\bfSumas de Fourier')  
+   xlabel('\bf TIEMPO');
+   ylabel('\bf AMPLITUD');
