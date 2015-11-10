@@ -107,22 +107,44 @@ function sum = fourier_sum(f,t,n,L)
     %%no me deja usar i para subindices <.< asi que uso k
     sum = a(f,t,0,L)/2 + symsum(a(f,t,k,L)*cos(k*pi*t/L) + b(f,t,k,L)*sin(k*pi*t/L),k,1,n);
         
-
+% A = intervalo, f = funcion
+function graficar(A,f,handles)
+syms x
+axes(handles.function_graph)
+clear_graph(handles.function_graph)
+x = linspace(min(A), max(A), 1000);
+fx = 0;
+for i=1:length(A)-1
+    if mod(i, 2) == 1
+    fx = fx+((x>=A(i))&(x<=A(i+1))).*subs(f(i),x);
+    else
+    fx = fx+((x>A(i))&(x<A(i+1))).*subs(f(i),x);
+    end
+end
+plot(x, fx, 'Linewidth', 2); hold on
+plot(x+max(x)-min(x), fx, 'Linewidth', 2) 
+plot(x-max(x)+min(x), fx, 'Linewidth', 2)
+plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
+plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
+    
+    
 function CALCULAR_Callback(hObject, eventdata, handles)
-% hObject    handle to CALCULAR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 clc
 syms n wt t 
-global A f
+A = str2num(get(handles.INTERVALOS, 'String'));
+f = eval(get(handles.ECUACION, 'String'));
+graficar(A,f,handles)
+
 f = sym(f);
 T = max(A)-min(A);
+
+
 wo = 2*pi/(T);
 Ao = 0;
 for i=1:length(f)
    Ao = Ao +int(f(i),'t', A(i), A(i+1));
 end
-Ao = simplify(Ao/T)
+Ao = simplify(Ao/T);
 
 
 An = 0;
@@ -131,7 +153,7 @@ evalin(symengine,'assume(k,Type::Integer)');
 for i=1:length(f)
    An = An +int(f(i)*cos(n*wo*t), A(i), A(i+1));
 end
-An = simplify(2*An/T)
+An = simplify(2*An/T);
 
 Bn = 0;
 for i=1:length(f)
@@ -165,12 +187,12 @@ for i=1:a
     title('\bfEspectro de Amplitud')
    xlim([1 a])
    
-   pause(0.001)
+   pause(0.001) 
 end
 axes(handles.sumas_fourier)
-   plot(t, Ao+sum(ft), 'r','Linewidth', 2);
+   plot(t, Ao+sum(ft), 'r','Linewidth', 2); 
 
-  
+
 
 
 
@@ -188,36 +210,6 @@ function ECUACION_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-% --- Executes on button press in GRAFICAR.
-function GRAFICAR_Callback(hObject, eventdata, handles)
-% hObject    handle to GRAFICAR (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global A f
-syms x t
-
-axes(handles.function_graph)
-clear_graph(handles.function_graph)
-A = str2num(get(handles.INTERVALOS, 'String'));
-f = eval(get(handles.ECUACION, 'String'));
-x = linspace(min(A), max(A), 1000);
-fx = 0;
-for i=1:length(A)-1
-    if mod(i, 2) == 1
-    fx = fx+((x>=A(i))&(x<=A(i+1))).*subs(f(i),x);
-    else
-    fx = fx+((x>A(i))&(x<A(i+1))).*subs(f(i),x);
-    end
-end
-plot(x, fx, 'Linewidth', 2); hold on
-plot(x+max(x)-min(x), fx, 'Linewidth', 2) 
-plot(x-max(x)+min(x), fx, 'Linewidth', 2)
-plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
-plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
-T = max(x)-min(x);
-
 
 
 
