@@ -83,7 +83,7 @@ function varargout = fourier_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-function updateCoeficientText(Ao,An,Bn,Fs,handles)
+function updateInformationText(Ao,An,Bn,Fs,handles)
 
 P = strcat('$$', 'A_0 = ', char(latex(Ao)),'$$');
 set(handles.latex_a_cero,'String',P);
@@ -151,7 +151,7 @@ Ao = a_n(f,t,0,A);
 An = a_n(f,t,n,A);
 Bn = b_n(f,t,n,A);
 Fs = fourier_sum(f,t,armonicas,A);
-updateCoeficientText(Ao,An,Bn,Fs,handles);
+updateInformationText(Ao,An,Bn,Fs,handles);
 
 axes(handles.sumas_fourier)
 ezplot(Fs)
