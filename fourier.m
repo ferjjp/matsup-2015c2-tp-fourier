@@ -99,17 +99,22 @@ hold(axes,'on')
 delete(allchild(axes));
 hold(axes,'off')
 
-function An = a_n(f,t,i,L)
-    An = simplify(int(f*cos(i*pi*t/L)/L,t,-L,L));
+function An = a_n(f,t,i,A)
+    T = max(A) - min(A);
+    L = T/2;
+    An = simplify(int(f*cos(i*pi*t/L)/L,t,min(A),max(A)));
     
-function Bn = b_n(f,t,i,L)
-    Bn = simplify(int(f*sin(i*pi*t/L)/L,t,-L,L));
+function Bn = b_n(f,t,i,A)
+    T = max(A) - min(A);
+    L = T/2;
+    Bn = simplify(int(f*sin(i*pi*t/L)/L,t,min(A),max(A)));
    
    % donde n = numero de armonicas 
-function sum = fourier_sum(f,t,n,L)
+function sum = fourier_sum(f,t,n,A)
     syms q
     assume(q,'integer');
-    sum = a_n(f,t,0,L)/2 + symsum(a_n(f,t,q,L)*cos(q*pi*t/L) + b_n(f,t,q,L)*sin(q*pi*t/L),q,1,n);
+    L = (max(A) - min(A))/2;
+    sum = a_n(f,t,0,A)/2 + symsum(a_n(f,t,q,A)*cos(q*pi*t/L) + b_n(f,t,q,A)*sin(q*pi*t/L),q,1,n);
         
 % A = intervalo, f = funcion
 function graficar(A,f,handles)
@@ -130,6 +135,7 @@ plot(x+max(x)-min(x), fx, 'Linewidth', 2)
 plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
+grid on
     
     
 function CALCULAR_Callback(hObject, eventdata, handles)
@@ -137,21 +143,18 @@ clc
 syms n t fs
 assume(n,'integer');
 A = str2num(get(handles.INTERVALOS, 'String'));
-f = eval(get(handles.ECUACION, 'String'));
+f = evalin(symengine,get(handles.ECUACION, 'String'));
 graficar(A,f,handles)
-f = sym(f);
-T = max(A)-min(A);
-L = T / 2;
 armonicas = str2num(get(handles.ARMONICOS, 'String'));
 
-Ao = a_n(f,t,0,L);
-An = a_n(f,t,n,L);
-Bn = b_n(f,t,n,L);
-Fs = fourier_sum(f,t,armonicas,L);
+Ao = a_n(f,t,0,A);
+An = a_n(f,t,n,A);
+Bn = b_n(f,t,n,A);
+Fs = fourier_sum(f,t,armonicas,A);
 updateCoeficientText(Ao,An,Bn,Fs,handles);
 
 axes(handles.sumas_fourier)
-ezplot(Fs,-1,1)
+ezplot(Fs)
 
 %graph_intervale = linspace(min(A)-T, max(A)+T,1000);
 
@@ -183,9 +186,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-function ARMONICOS_Callback(hObject, eventdata, handles)
 
 function ARMONICOS_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
