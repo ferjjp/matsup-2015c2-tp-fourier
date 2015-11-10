@@ -113,7 +113,7 @@ function Bn = b_n(f,t,i,A)
 function sum = fourier_sum(f,t,n,A)
     syms q
     assume(q,'integer');
-    L = (max(A) - min(A))/2
+    L = (max(A) - min(A))/2;
     sum = a_n(f,t,0,A)/2 + symsum(a_n(f,t,q,A)*cos(q*pi*t/L) + b_n(f,t,q,A)*sin(q*pi*t/L),q,1,n);
         
 % A = intervalo, f = funcion
@@ -122,7 +122,6 @@ syms x
 axes(handles.function_graph)
 clear_graph(handles.function_graph)
 x = linspace(min(A), max(A), 1000);
-%{
 fx = 0;
 for i=1:length(A)-1
     if mod(i, 2) == 1
@@ -131,14 +130,12 @@ for i=1:length(A)-1
     fx = fx+((x>A(i))&(x<A(i+1))).*subs(f(i),x);
     end
 end
-%}
-plot(x, subs(f,x)); hold on
-%{
+plot(x, fx, 'Linewidth', 2); hold on
 plot(x+max(x)-min(x), fx, 'Linewidth', 2) 
 plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
-%}
+grid on
     
     
 function CALCULAR_Callback(hObject, eventdata, handles)
