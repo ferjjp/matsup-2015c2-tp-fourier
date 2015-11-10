@@ -96,6 +96,18 @@ hold(axes,'on')
 delete(allchild(axes));
 hold(axes,'off')
 
+function An = a_n(f,t,i,L)
+    An = int(f*cos(i*pi*t/L)/L,t,-L,L);
+    
+function Bn = b_n(f,t,i,L)
+    Bn = int(f*sin(i*pi*t/L)/L,t,-L,L);
+    
+    
+function sum = fourier_sum(f,t,n,L)
+    %%no me deja usar i para subindices <.< asi que uso k
+    sum = a(f,t,0,L)/2 + symsum(a(f,t,k,L)*cos(k*pi*t/L) + b(f,t,k,L)*sin(k*pi*t/L),k,1,n);
+        
+
 function CALCULAR_Callback(hObject, eventdata, handles)
 % hObject    handle to CALCULAR (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
