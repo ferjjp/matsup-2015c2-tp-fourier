@@ -83,13 +83,16 @@ function varargout = fourier_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-function updateCoeficientText(Ao,An,Bn,handles)
+function updateCoeficientText(Ao,An,Bn,Fs,handles)
+
 P = strcat('$$', 'A_0 = ', char(latex(Ao)),'$$');
 set(handles.latex_a_cero,'String',P);
 P = strcat('$$', 'A_n = ', char(latex(An)),'$$');
 set(handles.latex_a_ns,'String',P);
 P = strcat('$$', 'B_n = ', char(latex(Bn)),'$$');
 set(handles.latex_b_ns,'String',P);
+P = strcat('$$', 'Serie = ', char(latex(Fs)),'$$');
+set(handles.latex_fourier_sum_text,'String',P);
 
 function clear_graph(axes)
 hold(axes,'on')
@@ -97,15 +100,16 @@ delete(allchild(axes));
 hold(axes,'off')
 
 function An = a_n(f,t,i,L)
-    An = int(f*cos(i*pi*t/L)/L,t,-L,L);
+    An = simplify(int(f*cos(i*pi*t/L)/L,t,-L,L));
     
 function Bn = b_n(f,t,i,L)
-    Bn = int(f*sin(i*pi*t/L)/L,t,-L,L);
-    
-    
+    Bn = simplify(int(f*sin(i*pi*t/L)/L,t,-L,L));
+   
+   % donde n = numero de armonicas 
 function sum = fourier_sum(f,t,n,L)
-    %%no me deja usar i para subindices <.< asi que uso k
-    sum = a(f,t,0,L)/2 + symsum(a(f,t,k,L)*cos(k*pi*t/L) + b(f,t,k,L)*sin(k*pi*t/L),k,1,n);
+    syms q
+    assume(q,'integer');
+    sum = a_n(f,t,0,L)/2 + symsum(a_n(f,t,q,L)*cos(q*pi*t/L) + b_n(f,t,q,L)*sin(q*pi*t/L),q,1,n);
         
 % A = intervalo, f = funcion
 function graficar(A,f,handles)
@@ -130,67 +134,26 @@ plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
     
 function CALCULAR_Callback(hObject, eventdata, handles)
 clc
-syms n wt t 
+syms n t fs
+assume(n,'integer');
 A = str2num(get(handles.INTERVALOS, 'String'));
 f = eval(get(handles.ECUACION, 'String'));
 graficar(A,f,handles)
-
 f = sym(f);
 T = max(A)-min(A);
+L = T / 2;
+armonicas = str2num(get(handles.ARMONICOS, 'String'));
 
+Ao = a_n(f,t,0,L);
+An = a_n(f,t,n,L);
+Bn = b_n(f,t,n,L);
+Fs = fourier_sum(f,t,armonicas,L);
+updateCoeficientText(Ao,An,Bn,Fs,handles);
 
-wo = 2*pi/(T);
-Ao = 0;
-for i=1:length(f)
-   Ao = Ao +int(f(i),'t', A(i), A(i+1));
-end
-Ao = simplify(Ao/T);
-
-
-An = 0;
-wo = 2*pi/T;
-evalin(symengine,'assume(k,Type::Integer)');
-for i=1:length(f)
-   An = An +int(f(i)*cos(n*wo*t), A(i), A(i+1));
-end
-An = simplify(2*An/T);
-
-Bn = 0;
-for i=1:length(f)
-   Bn = Bn +int(f(i)*sin(n*wo*t), A(i), A(i+1));
-end
-Bn = simplify(2*Bn/T);
-
-updateCoeficientText(Ao,An,Bn,handles);
-
-syms n 
-a = str2num(get(handles.ARMONICOS, 'String'));
-t = linspace(min(A)-T, max(A)+T,1000);
-ft = zeros(a, 1000); 
-for i=1:a
-   ft(i,:) = (subs(Bn, 'n', i).*sin(i*wo*t))+(subs(An, 'n', i).*cos(i*wo*t));
-   %%Plot fourier sums
-   axes(handles.sumas_fourier)  
-   clear_graph(handles.sumas_fourier);
-   xlim([min(t) max(t)])
-    plot(t, Ao+sum(ft),'Color', 'b', 'Linewidth', 1.3); 
-
-   
-   hold on
-   %%%Espectro de amplitud
-   Cn(i) = sqrt(subs(Bn, 'n', i)^2+subs(An, 'n', i)^2);
-   axes(handles.axes3)
-   clear_graph(handles.axes3);
-   set(handles.axes3, 'visible', 'on')
-    stem(Cn,'fill','r', 'Linewidth', 2)
-   hold on; grid on
-    title('\bfEspectro de Amplitud')
-   xlim([1 a])
-   
-   pause(0.001) 
-end
 axes(handles.sumas_fourier)
-   plot(t, Ao+sum(ft), 'r','Linewidth', 2); 
+ezplot(Fs,-1,1)
+
+%graph_intervale = linspace(min(A)-T, max(A)+T,1000);
 
 
 
@@ -246,7 +209,7 @@ title('\bfFuncion');
 % --- Executes during object creation, after setting all properties.
 function sumas_fourier_CreateFcn(hObject, eventdata, handles)
    axes(hObject)
-   set(handles.sumas_fourier, 'visible', 'on')
+   set(hObject, 'visible', 'on')
    grid on
    title('\bfSumas de Fourier')  
    xlabel('\bf TIEMPO');
