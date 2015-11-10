@@ -156,6 +156,11 @@ updateCoeficientText(Ao,An,Bn,Fs,handles);
 axes(handles.sumas_fourier)
 ezplot(Fs)
 
+axes(handles.coeficientes_axis)
+ns = 1:armonicas;
+coeficientes = [subs(An,ns),subs(Bn,ns)];
+stem(coeficientes,'filled');
+%stem(ns,subs(Bn,ns),'filled');
 %graph_intervale = linspace(min(A)-T, max(A)+T,1000);
 
 
