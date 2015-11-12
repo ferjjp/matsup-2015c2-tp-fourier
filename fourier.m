@@ -236,7 +236,7 @@ for n=1:50;
     fn = fourier_sum(f,t,n,A);
     Error = int(abs(subs(f) - subs(fn)), t, min(A), max(A))/int(abs(subs(f)), t, min(A), max(A));
     ErrorRelativo = subs(vpa(Error,5),'n',n)
-    if lt(ErrorRelativo,0.15)
+    if lt(ErrorRelativo,0.05)
         CantidadDeArmonicos = n
         break;
     end
