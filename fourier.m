@@ -136,6 +136,7 @@ plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
 grid on
+title('Función original')
     
     
 function CALCULAR_Callback(hObject, eventdata, handles)
@@ -155,11 +156,17 @@ updateInformationText(Ao,An,Bn,Fs,handles);
 
 axes(handles.sumas_fourier)
 ezplot(Fs)
+grid on
+title(strcat({'Fourier con '},get(handles.ARMONICOS, 'String'),{' armónicos'}))
+xlabel('')
 
 axes(handles.coeficientes_axis)
 ns = 1:armonicas;
 coeficientes = [subs(An,ns),subs(Bn,ns)];
 stem(coeficientes,'filled');
+grid on
+title(strcat({'Coeficientes para '},num2str(armonicas),{' armónicos'}))
+
 %stem(ns,subs(Bn,ns),'filled');
 %graph_intervale = linspace(min(A)-T, max(A)+T,1000);
 
@@ -206,9 +213,7 @@ function function_graph_CreateFcn(hObject, eventdata, handles)
 axes(hObject)
 set(hObject, 'visible', 'on')
 grid on
-xlabel('\bfTIEMPO');
-ylabel('\bfAMPLITUD');
-title('\bfFuncion');
+title('\bfFunción Original');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -217,8 +222,6 @@ function sumas_fourier_CreateFcn(hObject, eventdata, handles)
    set(hObject, 'visible', 'on')
    grid on
    title('\bfSumas de Fourier')  
-   xlabel('\bf TIEMPO');
-   ylabel('\bf AMPLITUD');
 
 % --- Executes on button press in boton_armonicos.
 function boton_armonicos_Callback(hObject, eventdata, handles)
@@ -233,12 +236,30 @@ for n=1:50;
     fn = fourier_sum(f,t,n,A);
     Error = int(abs(subs(f) - subs(fn)), t, min(A), max(A))/int(abs(subs(f)), t, min(A), max(A));
     ErrorRelativo = subs(vpa(Error,5),'n',n)
-    if lt(ErrorRelativo,0.05499)
+    if lt(ErrorRelativo,0.15)
         CantidadDeArmonicos = n
         break;
     end
 end
-P = strcat('Armónicos=', num2str(CantidadDeArmonicos));
+axes(handles.sumas_fourier_5_porciento)
+ezplot(fn)
+grid on
+title(strcat({'Fourier con '},num2str(CantidadDeArmonicos),{' armónicos'}))
+xlabel('')
+
+syms ns
+An = a_n(f,t,ns,A);
+Bn = b_n(f,t,ns,A);
+
+axes(handles.coeficientes_axis_5_porciento)
+ns = 1:CantidadDeArmonicos;
+coeficientes = [subs(An, ns),subs(Bn, ns)];
+stem(coeficientes,'filled');
+grid on
+title(strcat({'Coeficientes para '},num2str(CantidadDeArmonicos),{' armónicos'}))
+
+
+P = strcat({'Armónicos para un error del 5% = '}, num2str(CantidadDeArmonicos));
 set(handles.error_text,'String', P);
 
 
