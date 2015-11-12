@@ -158,10 +158,8 @@ ezplot(Fs)
 
 axes(handles.coeficientes_axis)
 ns = 1:armonicas;
-coeficientes = [subs(An,ns),subs(Bn,ns)];
-stem(coeficientes,'filled');
-%stem(ns,subs(Bn,ns),'filled');
-%graph_intervale = linspace(min(A)-T, max(A)+T,1000);
+stem(ns,subs(Bn,ns),'filled'); hold on;
+stem(ns,subs(An,ns),'filled'); hold off
 
 
 
@@ -232,13 +230,13 @@ A = str2num(get(handles.INTERVALOS, 'String'));
 for n=1:50;
     fn = fourier_sum(f,t,n,A);
     Error = int(abs(subs(f) - subs(fn)), t, min(A), max(A))/int(abs(subs(f)), t, min(A), max(A));
-    ErrorRelativo = subs(vpa(Error,5),'n',n)
+    ErrorRelativo = subs(vpa(Error,5),'n',n);
     if lt(ErrorRelativo,0.05499)
-        CantidadDeArmonicos = n
+        CantidadDeArmonicos = n;
         break;
     end
 end
-P = strcat('Armónicos=', num2str(CantidadDeArmonicos));
+P = strcat('Armï¿½nicos=', num2str(CantidadDeArmonicos));
 set(handles.error_text,'String', P);
 
 
