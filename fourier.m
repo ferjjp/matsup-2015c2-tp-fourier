@@ -22,7 +22,7 @@ function varargout = fourier(varargin)
 
 % Edit the above text to modify the response to help fourier
 
-% Last Modified by GUIDE v2.5 12-Nov-2015 14:55:54
+% Last Modified by GUIDE v2.5 12-Nov-2015 19:04:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -136,6 +136,7 @@ plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
 grid on
+title('Funci�n original')
     
     
 function CALCULAR_Callback(hObject, eventdata, handles)
@@ -155,18 +156,16 @@ updateInformationText(Ao,An,Bn,Fs,handles);
 
 axes(handles.sumas_fourier)
 ezplot(Fs)
+grid on
+title(strcat({'Fourier con '},get(handles.ARMONICOS, 'String'),{' armonicas'}))
+xlabel('')
 
 axes(handles.coeficientes_axis)
 ns = 1:armonicas;
 stem(ns,subs(Bn,ns),'filled'); hold on;
 stem(ns,subs(An,ns),'filled'); hold off
-
-
-
-
-
-function ECUACION_Callback(hObject, eventdata, handles)
-
+grid on
+title(strcat({'Coeficientes para '},num2str(armonicas),{' arm�nicos'}))
 
 % --- Executes during object creation, after setting all properties.
 function ECUACION_CreateFcn(hObject, eventdata, handles)
@@ -179,10 +178,6 @@ function ECUACION_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-function INTERVALOS_Callback(hObject, eventdata, handles)
 
 function INTERVALOS_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -204,9 +199,7 @@ function function_graph_CreateFcn(hObject, eventdata, handles)
 axes(hObject)
 set(hObject, 'visible', 'on')
 grid on
-xlabel('\bfTIEMPO');
-ylabel('\bfAMPLITUD');
-title('\bfFuncion');
+title('\bfFunci�n Original');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -215,8 +208,6 @@ function sumas_fourier_CreateFcn(hObject, eventdata, handles)
    set(hObject, 'visible', 'on')
    grid on
    title('\bfSumas de Fourier')  
-   xlabel('\bf TIEMPO');
-   ylabel('\bf AMPLITUD');
 
 % --- Executes on button press in boton_armonicos.
 function boton_armonicos_Callback(hObject, eventdata, handles)
@@ -230,20 +221,29 @@ A = str2num(get(handles.INTERVALOS, 'String'));
 for n=1:50;
     fn = fourier_sum(f,t,n,A);
     Error = int(abs(subs(f) - subs(fn)), t, min(A), max(A))/int(abs(subs(f)), t, min(A), max(A));
-    ErrorRelativo = subs(vpa(Error,5),'n',n);
-    if lt(ErrorRelativo,0.05499)
-        CantidadDeArmonicos = n;
+    ErrorRelativo = subs(vpa(Error,5),'n',n)
+    if lt(ErrorRelativo,0.05)
+        CantidadDeArmonicos = n
         break;
     end
 end
-P = strcat('Arm�nicos=', num2str(CantidadDeArmonicos));
-set(handles.error_text,'String', P);
+axes(handles.sumas_fourier_5_porciento)
+ezplot(fn)
+grid on
+title(strcat({'Fourier con '},num2str(CantidadDeArmonicos),{' armonicas'}))
+xlabel('');
+
+syms n
+An = a_n(f,t,n,A);
+Bn = b_n(f,t,n,A);
+
+axes(handles.coeficientes_axis_5_porciento)
+ns = 1:CantidadDeArmonicos;
+stem(ns,subs(Bn,ns),'filled'); hold on;
+stem(ns,subs(An,ns),'filled'); hold off
+grid on
+title(strcat({'Coeficientes para '},num2str(CantidadDeArmonicos),{' armonicas'}))
 
 
-function ARMONICOS_Callback(hObject, eventdata, handles)
-% hObject    handle to ARMONICOS (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of ARMONICOS as text
-%        str2double(get(hObject,'String')) returns contents of ARMONICOS as a double
+P = strcat({'Armonicas para un error menor a 5% = '}, num2str(CantidadDeArmonicos));
+set(handles.latex_error_text,'String', P);
