@@ -22,7 +22,7 @@ function varargout = fourier(varargin)
 
 % Edit the above text to modify the response to help fourier
 
-% Last Modified by GUIDE v2.5 09-Nov-2015 20:00:51
+% Last Modified by GUIDE v2.5 12-Nov-2015 14:55:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -219,3 +219,33 @@ function sumas_fourier_CreateFcn(hObject, eventdata, handles)
    title('\bfSumas de Fourier')  
    xlabel('\bf TIEMPO');
    ylabel('\bf AMPLITUD');
+
+% --- Executes on button press in boton_armonicos.
+function boton_armonicos_Callback(hObject, eventdata, handles)
+% hObject    handle to boton_armonicos (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+syms f fn t n
+f = evalin(symengine,get(handles.ECUACION, 'String'));
+A = str2num(get(handles.INTERVALOS, 'String'));
+
+for n=1:50;
+    fn = fourier_sum(f,t,n,A);
+    Error = int(abs(subs(f) - subs(fn)), t, min(A), max(A))/int(abs(subs(f)), t, min(A), max(A));
+    ErrorRelativo = subs(vpa(Error,5),'n',n)
+    if lt(ErrorRelativo,0.05499)
+        CantidadDeArmonicos = n
+        break;
+    end
+end
+P = strcat('Armónicos=', num2str(CantidadDeArmonicos));
+set(handles.error_text,'String', P);
+
+
+function ARMONICOS_Callback(hObject, eventdata, handles)
+% hObject    handle to ARMONICOS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ARMONICOS as text
+%        str2double(get(hObject,'String')) returns contents of ARMONICOS as a double
