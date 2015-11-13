@@ -22,7 +22,7 @@ function varargout = fourier(varargin)
 
 % Edit the above text to modify the response to help fourier
 
-% Last Modified by GUIDE v2.5 12-Nov-2015 19:04:24
+% Last Modified by GUIDE v2.5 13-Nov-2015 00:48:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
