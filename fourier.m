@@ -136,7 +136,7 @@ plot(x-max(x)+min(x), fx, 'Linewidth', 2)
 plot([max(x) max(x)],[fx(1) fx(end)], 'linewidth', 2)
 plot([min(x) min(x)],[fx(end) fx(1)], 'linewidth', 2)
 grid on
-title('Funci�n original')
+title('Funcion original')
     
     
 function CALCULAR_Callback(hObject, eventdata, handles)
@@ -165,7 +165,7 @@ ns = 1:armonicas;
 stem(ns,subs(Bn,ns),'filled'); hold on;
 stem(ns,subs(An,ns),'filled'); hold off
 grid on
-title(strcat({'Coeficientes para '},num2str(armonicas),{' arm�nicos'}))
+title(strcat({'Coeficientes para '},num2str(armonicas),{' armonicas'}))
 
 % --- Executes during object creation, after setting all properties.
 function ECUACION_CreateFcn(hObject, eventdata, handles)
@@ -199,7 +199,7 @@ function function_graph_CreateFcn(hObject, eventdata, handles)
 axes(hObject)
 set(hObject, 'visible', 'on')
 grid on
-title('\bfFunci�n Original');
+title('\bfFuncion Original');
 
 
 % --- Executes during object creation, after setting all properties.
